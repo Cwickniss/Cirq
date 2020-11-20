@@ -34,8 +34,7 @@ from cirq.ops import gate_features
 
 
 @value.value_equality(approximate=True)
-class FSimGate(gate_features.TwoQubitGate,
-               gate_features.InterchangeableQubitsGate):
+class FSimGate(gate_features.TwoQubitGate, gate_features.InterchangeableQubitsGate):
     """Fermionic simulation gate family.
 
     Contains all two qubit interactions that preserve excitations, up to
@@ -78,8 +77,7 @@ class FSimGate(gate_features.TwoQubitGate,
         return self.theta, self.phi
 
     def _is_parameterized_(self) -> bool:
-        return cirq.is_parameterized(self.theta) or cirq.is_parameterized(
-            self.phi)
+        return cirq.is_parameterized(self.theta) or cirq.is_parameterized(self.phi)
 
     def _parameter_names_(self) -> AbstractSet[str]:
         return cirq.parameter_names(self.theta) | cirq.parameter_names(self.phi)
@@ -93,12 +91,14 @@ class FSimGate(gate_features.TwoQubitGate,
         a = math.cos(self.theta)
         b = -1j * math.sin(self.theta)
         c = cmath.exp(-1j * self.phi)
-        return np.array([
-            [1, 0, 0, 0],
-            [0, a, b, 0],
-            [0, b, a, 0],
-            [0, 0, 0, c],
-        ])
+        return np.array(
+            [
+                [1, 0, 0, 0],
+                [0, a, b, 0],
+                [0, b, a, 0],
+                [0, 0, 0, c],
+            ]
+        )
 
     def _pauli_expansion_(self) -> value.LinearDict[str]:
         if protocols.is_parameterized(self):
@@ -106,33 +106,33 @@ class FSimGate(gate_features.TwoQubitGate,
         a = math.cos(self.theta)
         b = -1j * math.sin(self.theta)
         c = cmath.exp(-1j * self.phi)
-        return value.LinearDict({
-            'II': (1 + c) / 4 + a / 2,
-            'IZ': (1 - c) / 4,
-            'ZI': (1 - c) / 4,
-            'ZZ': (1 + c) / 4 - a / 2,
-            'XX': b / 2,
-            'YY': b / 2,
-        })
+        return value.LinearDict(
+            {
+                'II': (1 + c) / 4 + a / 2,
+                'IZ': (1 - c) / 4,
+                'ZI': (1 - c) / 4,
+                'ZZ': (1 + c) / 4 - a / 2,
+                'XX': b / 2,
+                'YY': b / 2,
+            }
+        )
 
-    def _resolve_parameters_(self, param_resolver: 'cirq.ParamResolver'
-                            ) -> 'cirq.FSimGate':
+    def _resolve_parameters_(self, param_resolver: 'cirq.ParamResolver') -> 'cirq.FSimGate':
         return FSimGate(
             protocols.resolve_parameters(self.theta, param_resolver),
-            protocols.resolve_parameters(self.phi, param_resolver))
+            protocols.resolve_parameters(self.phi, param_resolver),
+        )
 
-    def _apply_unitary_(self,
-                        args: 'cirq.ApplyUnitaryArgs') -> Optional[np.ndarray]:
+    def _apply_unitary_(self, args: 'cirq.ApplyUnitaryArgs') -> Optional[np.ndarray]:
         if cirq.is_parameterized(self):
             return None
         if self.theta != 0:
             inner_matrix = protocols.unitary(cirq.rx(2 * self.theta))
             oi = args.subspace_index(0b01)
             io = args.subspace_index(0b10)
-            out = cirq.apply_matrix_to_slices(args.target_tensor,
-                                              inner_matrix,
-                                              slices=[oi, io],
-                                              out=args.available_buffer)
+            out = cirq.apply_matrix_to_slices(
+                args.target_tensor, inner_matrix, slices=[oi, io], out=args.available_buffer
+            )
         else:
             out = args.target_tensor
         if self.phi != 0:
@@ -146,10 +146,9 @@ class FSimGate(gate_features.TwoQubitGate,
         yy = cirq.YYPowGate(exponent=self.theta / np.pi, global_shift=-0.5)
         yield xx(a, b)
         yield yy(a, b)
-        yield cirq.CZ(a, b)**(-self.phi / np.pi)
+        yield cirq.CZ(a, b) ** (-self.phi / np.pi)
 
-    def _circuit_diagram_info_(self, args: 'cirq.CircuitDiagramInfoArgs'
-                              ) -> Tuple[str, ...]:
+    def _circuit_diagram_info_(self, args: 'cirq.CircuitDiagramInfoArgs') -> Tuple[str, ...]:
         t = args.format_radians(self.theta)
         p = args.format_radians(self.phi)
         return f'FSim({t}, {p})', f'FSim({t}, {p})'

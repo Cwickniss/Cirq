@@ -26,10 +26,7 @@ def test_random_circuit_errors():
         _ = cirq.testing.random_circuit(qubits=5, n_moments=5, op_density=-1)
 
     with pytest.raises(ValueError, match='empty'):
-        _ = cirq.testing.random_circuit(qubits=5,
-                                        n_moments=5,
-                                        op_density=0.5,
-                                        gate_domain={})
+        _ = cirq.testing.random_circuit(qubits=5, n_moments=5, op_density=0.5, gate_domain={})
 
     with pytest.raises(ValueError, match='At least one'):
         _ = cirq.testing.random_circuit(qubits=0, n_moments=5, op_density=0.5)
@@ -38,14 +35,12 @@ def test_random_circuit_errors():
         _ = cirq.testing.random_circuit(qubits=(), n_moments=5, op_density=0.5)
 
     with pytest.raises(
-            ValueError,
-            match=
-            'After removing gates that act on less than 1 qubits, gate_domain '
-            'had no gates'):
-        _ = cirq.testing.random_circuit(qubits=1,
-                                        n_moments=5,
-                                        op_density=0.5,
-                                        gate_domain={cirq.CNOT: 2})
+        ValueError,
+        match='After removing gates that act on less than 1 qubits, gate_domain ' 'had no gates',
+    ):
+        _ = cirq.testing.random_circuit(
+            qubits=1, n_moments=5, op_density=0.5, gate_domain={cirq.CNOT: 2}
+        )
 
 
 def _cases_for_random_circuit():
@@ -58,7 +53,9 @@ def _cases_for_random_circuit():
             gate_domain = dict(
                 random.sample(
                     tuple(cirq.testing.DEFAULT_GATE_DOMAIN.items()),
-                    random.randint(1, len(cirq.testing.DEFAULT_GATE_DOMAIN))))
+                    random.randint(1, len(cirq.testing.DEFAULT_GATE_DOMAIN)),
+                )
+            )
             # Sometimes we generate gate domains whose gates all act on a
             # number of qubits greater that the number of qubits for the
             # circuit. In this case, try again.
@@ -73,35 +70,35 @@ def _cases_for_random_circuit():
 
 
 @pytest.mark.parametrize(
-    'n_qubits,n_moments,op_density,gate_domain,pass_qubits',
-    _cases_for_random_circuit())
-def test_random_circuit(n_qubits: Union[int, Sequence[cirq.Qid]],
-                        n_moments: int,
-                        op_density: float,
-                        gate_domain: Optional[Dict[cirq.Gate, int]],
-                        pass_qubits: bool):
+    'n_qubits,n_moments,op_density,gate_domain,pass_qubits', _cases_for_random_circuit()
+)
+def test_random_circuit(
+    n_qubits: Union[int, Sequence[cirq.Qid]],
+    n_moments: int,
+    op_density: float,
+    gate_domain: Optional[Dict[cirq.Gate, int]],
+    pass_qubits: bool,
+):
     qubit_set = cirq.LineQubit.range(n_qubits)
     qubit_arg = qubit_set if pass_qubits else n_qubits
-    circuit = cirq.testing.random_circuit(qubit_arg, n_moments, op_density,
-                                          gate_domain)
+    circuit = cirq.testing.random_circuit(qubit_arg, n_moments, op_density, gate_domain)
     if qubit_arg is qubit_set:
         assert circuit.all_qubits().issubset(qubit_set)
     assert len(circuit) == n_moments
     if gate_domain is None:
         gate_domain = cirq.testing.DEFAULT_GATE_DOMAIN
-    assert set(cast(cirq.GateOperation, op).gate
-               for op in circuit.all_operations()
-               ).issubset(gate_domain)
+    assert set(cast(cirq.GateOperation, op).gate for op in circuit.all_operations()).issubset(
+        gate_domain
+    )
 
 
-@pytest.mark.parametrize('seed', [random.randint(0, 2**32) for _ in range(10)])
+@pytest.mark.parametrize('seed', [random.randint(0, 2 ** 32) for _ in range(10)])
 def test_random_circuit_reproducible_with_seed(seed):
     wrappers = (lambda s: s, np.random.RandomState)
     circuits = [
-        cirq.testing.random_circuit(qubits=10,
-                                    n_moments=10,
-                                    op_density=0.7,
-                                    random_state=wrapper(seed))
+        cirq.testing.random_circuit(
+            qubits=10, n_moments=10, op_density=0.7, random_state=wrapper(seed)
+        )
         for wrapper in wrappers
         for _ in range(2)
     ]
@@ -111,10 +108,9 @@ def test_random_circuit_reproducible_with_seed(seed):
 
 def test_random_circuit_not_expected_number_of_qubits():
 
-    circuit = cirq.testing.random_circuit(qubits=3,
-                                          n_moments=1,
-                                          op_density=1.0,
-                                          gate_domain={cirq.CNOT: 2})
+    circuit = cirq.testing.random_circuit(
+        qubits=3, n_moments=1, op_density=1.0, gate_domain={cirq.CNOT: 2}
+    )
     # Despite having an op density of 1, we always only end up acting on
     # two qubits.
     assert len(circuit.all_qubits()) == 2

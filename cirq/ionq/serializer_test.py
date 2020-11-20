@@ -63,16 +63,11 @@ def test_serialize_pow_gates():
     serializer = ionq.Serializer()
     for name, gate in (('rx', cirq.X), ('ry', cirq.Y), ('rz', cirq.Z)):
         for exponent in (1.0, 0.5):
-            circuit = cirq.Circuit((gate**exponent)(q0))
+            circuit = cirq.Circuit((gate ** exponent)(q0))
             result = serializer.serialize(circuit)
             assert result == {
-                'qubits':
-                1,
-                'circuit': [{
-                    'gate': name,
-                    'targets': [0],
-                    'rotation': exponent * np.pi
-                }],
+                'qubits': 1,
+                'circuit': [{'gate': name, 'targets': [0], 'rotation': exponent * np.pi}],
             }
 
 
@@ -83,13 +78,8 @@ def test_serialize_xx_pow_gate():
         circuit = cirq.Circuit(cirq.XXPowGate(exponent=exponent)(q0, q1))
         result = serializer.serialize(circuit)
         assert result == {
-            'qubits':
-            2,
-            'circuit': [{
-                'gate': 'xx',
-                'targets': [0, 1],
-                'rotation': exponent * np.pi
-            }]
+            'qubits': 2,
+            'circuit': [{'gate': 'xx', 'targets': [0, 1], 'rotation': exponent * np.pi}],
         }
 
 

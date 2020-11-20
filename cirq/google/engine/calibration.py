@@ -55,25 +55,22 @@ class Calibration(abc.Mapping):
         self._metric_dict = self._compute_metric_dict(calibration.metrics)
 
     def _compute_metric_dict(
-            self, metrics: v2.metrics_pb2.MetricsSnapshot
+        self, metrics: v2.metrics_pb2.MetricsSnapshot
     ) -> Dict[str, Dict[Tuple['cirq.GridQubit', ...], Any]]:
-        results: Dict[str, Dict[Tuple[devices.
-                                      GridQubit, ...], Any]] = defaultdict(dict)
+        results: Dict[str, Dict[Tuple[devices.GridQubit, ...], Any]] = defaultdict(dict)
         for metric in metrics:
             name = metric.name
             # Flatten the values to a list, removing keys containing type names
             # (e.g. proto version of each value is {<type>: value}).
-            flat_values = [
-                getattr(v, v.WhichOneof('val')) for v in metric.values
-            ]
+            flat_values = [getattr(v, v.WhichOneof('val')) for v in metric.values]
             if metric.targets:
-                qubits = tuple(
-                    v2.grid_qubit_from_proto_id(t) for t in metric.targets)
+                qubits = tuple(v2.grid_qubit_from_proto_id(t) for t in metric.targets)
                 results[name][qubits] = flat_values
             else:
                 assert len(results[name]) == 0, (
                     'Only one metric of a given name can have no targets. '
-                    'Found multiple for key {}'.format(name))
+                    'Found multiple for key {}'.format(name)
+                )
                 results[name][()] = flat_values
         return results
 
@@ -89,9 +86,7 @@ class Calibration(abc.Mapping):
         be an empty tuple.
         """
         if not isinstance(key, str):
-            raise TypeError(
-                'Calibration metrics only have string keys. Key was {}'.format(
-                    key))
+            raise TypeError('Calibration metrics only have string keys. Key was {}'.format(key))
         if key not in self._metric_dict:
             raise KeyError('Metric named {} not in calibration'.format(key))
         return self._metric_dict[key]
@@ -106,9 +101,7 @@ class Calibration(abc.Mapping):
 
         return 'Calibration(keys={})'.format(list(sorted(self.keys())))
 
-    def timestamp_str(self,
-                      tz: Optional[datetime.tzinfo] = None,
-                      timespec: str = 'auto') -> str:
+    def timestamp_str(self, tz: Optional[datetime.tzinfo] = None, timespec: str = 'auto') -> str:
         """Return a string for the calibration timestamp.
 
         Args:
@@ -138,10 +131,10 @@ class Calibration(abc.Mapping):
         """
         metrics = self[key]
         assert all(len(k) == 1 for k in metrics.keys()), (
-            'Heatmaps are only supported if all the targets in a metric'
-            ' are single qubits.')
+            'Heatmaps are only supported if all the targets in a metric' ' are single qubits.'
+        )
         assert all(len(k) == 1 for k in metrics.values()), (
-            'Heatmaps are only supported if all the values in a metric'
-            ' are single metric values.')
+            'Heatmaps are only supported if all the values in a metric' ' are single metric values.'
+        )
         value_map = {qubit: value for (qubit,), (value,) in metrics.items()}
         return vis.Heatmap(value_map)

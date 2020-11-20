@@ -18,7 +18,8 @@ from cirq.ionq.ionq_client import (
 )
 
 from cirq.ionq.job import (
-    Job,)
+    Job,
+)
 
 from cirq.ionq.results import (
     QPUResult,
@@ -26,7 +27,9 @@ from cirq.ionq.results import (
 )
 
 from cirq.ionq.serializer import (
-    Serializer,)
+    Serializer,
+)
 
 from cirq.ionq.service import (
-    Service,)
+    Service,
+)

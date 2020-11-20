@@ -27,15 +27,15 @@ from cirq import _doc
 
 flags.DEFINE_string("output_dir", "/tmp/cirq_api", "Where to output the docs")
 
-flags.DEFINE_string("code_url_prefix",
-                    ("https://github.com/quantumlib/cirq/tree/master/"
-                     "cirq"), "The url prefix for links to code.")
+flags.DEFINE_string(
+    "code_url_prefix",
+    ("https://github.com/quantumlib/cirq/tree/master/" "cirq"),
+    "The url prefix for links to code.",
+)
 
-flags.DEFINE_bool("search_hints", True,
-                  "Include metadata search hints in the generated files")
+flags.DEFINE_bool("search_hints", True, "Include metadata search hints in the generated files")
 
-flags.DEFINE_string("site_path", "quark/cirq/api_docs/python",
-                    "Path prefix in the _toc.yaml")
+flags.DEFINE_string("site_path", "quark/cirq/api_docs/python", "Path prefix in the _toc.yaml")
 
 FLAGS = flags.FLAGS
 
@@ -52,11 +52,9 @@ def main(unused_argv):
         callbacks=[public_api.local_definitions_filter],
         private_map={
             # Opt to not build docs for these paths for now since they error.
-            "cirq.google.engine.client.quantum.QuantumEngineServiceClient":
-            ["enums"],
-            "cirq.google.engine.client.quantum_v1alpha1.QuantumEngineServiceClient":
-            ["enums"],
-            "cirq.google.api": ["v1"]
+            "cirq.google.engine.client.quantum.QuantumEngineServiceClient": ["enums"],
+            "cirq.google.engine.client.quantum_v1alpha1.QuantumEngineServiceClient": ["enums"],
+            "cirq.google.api": ["v1"],
         },
         extra_docs=_doc.RECORDED_CONST_DOCS,
     )

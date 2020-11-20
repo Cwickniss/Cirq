@@ -32,7 +32,7 @@ DEFAULT_GATE_DOMAIN: Dict[ops.Gate, int] = {
     ops.T: 1,
     ops.X: 1,
     ops.Y: 1,
-    ops.Z: 1
+    ops.Z: 1,
 }
 document(
     DEFAULT_GATE_DOMAIN,
@@ -40,15 +40,17 @@ document(
 
 This includes the gates CNOT, CZ, H, ISWAP, CZ, S, SWAP, T, X, Y,
 and Z gates.
-""")
+""",
+)
 
 
-def random_circuit(qubits: Union[Sequence[ops.Qid], int],
-                   n_moments: int,
-                   op_density: float,
-                   gate_domain: Optional[Dict[ops.Gate, int]] = None,
-                   random_state: 'cirq.RANDOM_STATE_OR_SEED_LIKE' = None
-                  ) -> Circuit:
+def random_circuit(
+    qubits: Union[Sequence[ops.Qid], int],
+    n_moments: int,
+    op_density: float,
+    gate_domain: Optional[Dict[ops.Gate, int]] = None,
+    random_state: 'cirq.RANDOM_STATE_OR_SEED_LIKE' = None,
+) -> Circuit:
     """Generates a random circuit.
 
     Args:
@@ -96,8 +98,10 @@ def random_circuit(qubits: Union[Sequence[ops.Qid], int],
         raise ValueError('At least one qubit must be specified.')
     gate_domain = {k: v for k, v in gate_domain.items() if v <= n_qubits}
     if not gate_domain:
-        raise ValueError(f'After removing gates that act on less than '
-                         f'{n_qubits} qubits, gate_domain had no gates.')
+        raise ValueError(
+            f'After removing gates that act on less than '
+            f'{n_qubits} qubits, gate_domain had no gates.'
+        )
     max_arity = max(gate_domain.values())
 
     prng = value.parse_random_state(random_state)
@@ -110,9 +114,7 @@ def random_circuit(qubits: Union[Sequence[ops.Qid], int],
         free_qubits = set(qubits)
         while len(free_qubits) >= max_arity:
             gate, arity = gate_arity_pairs[prng.randint(num_gates)]
-            op_qubits = prng.choice(sorted(free_qubits),
-                                    size=arity,
-                                    replace=False)
+            op_qubits = prng.choice(sorted(free_qubits), size=arity, replace=False)
             free_qubits.difference_update(op_qubits)
             if prng.rand() <= op_density:
                 operations.append(gate(*op_qubits))
